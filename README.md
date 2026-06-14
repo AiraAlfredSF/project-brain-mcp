@@ -1,4 +1,4 @@
-# code-brain-mcp
+# project-brain-mcp
 
 Standalone [MCP](https://modelcontextprotocol.io) server that gives CLI
 coding agents (Claude Code, Cline, Cursor, opencode) persistent decision
