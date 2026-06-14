@@ -158,6 +158,14 @@ into your project so Claude Code knows how/when to call the tools.
 
 ## First run
 
+> **You don't need to type these calls yourself.** Once
+> `skills/claude-code/CLAUDE.md` is installed in your project root (via
+> `scripts/install.sh` or copied manually), Claude Code auto-loads it every
+> session and treats the steps below as always-on behavior — it calls these
+> tools on its own as part of normal work, and `get_session_health()`
+> self-corrects if it skips one. The steps below are what happens under the
+> hood, useful mainly for the very first run or for manual/CLI testing.
+
 In a fresh Claude Code session in your project:
 
 1. `start_session()`
