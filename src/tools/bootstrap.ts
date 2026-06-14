@@ -91,7 +91,7 @@ export function getBootstrapStatus(db: DatabaseType): string {
  *   2. Compute `uncovered` (next non-deprecated `graph_nodes` row with
  *      no `module_intents` row, by `graph_nodes.id` ASC).
  *   3. If `uncovered` is non-empty: return `BOOTSTRAP: in_progress` with
- *      `next_module=<path>` and `progress=<covered>/<total>`.
+ *      `next_module=<module>` and `progress=<covered>/<total>`.
  *   4. If `uncovered` is empty (this call closed the last gap, or the
  *      repo has zero non-deprecated modules): call
  *      `write_constraints_draft()` and return `BOOTSTRAP: complete` with
@@ -142,7 +142,7 @@ export function runBootstrap(
     // There are still uncovered modules.
     const lines = [
       BOOTSTRAP_IN_PROGRESS_HEADER,
-      formatNextModule(next.path),
+      formatNextModule(next.module),
       formatBootstrapProgress(covered, total),
     ];
     return lines.join("\n");

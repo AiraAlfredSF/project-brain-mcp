@@ -469,9 +469,9 @@ export function formatBootstrapStatusStats(
 /** `BOOTSTRAP: in_progress` header line for `run_bootstrap`. */
 export const BOOTSTRAP_IN_PROGRESS_HEADER = "BOOTSTRAP: in_progress";
 
-/** `next_module=<path>` line (in_progress only). */
-export function formatNextModule(path: string): string {
-  return `next_module=${escapePlanField(path)}`;
+/** `next_module=<module>` line (in_progress only). */
+export function formatNextModule(module: string): string {
+  return `next_module=${escapePlanField(module)}`;
 }
 
 /** `progress=<covered>/<total>` line (in_progress only). */

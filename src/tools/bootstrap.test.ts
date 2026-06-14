@@ -293,14 +293,6 @@ describe("run_bootstrap", () => {
   function progress(dsl: string): string {
     return dsl.match(/^progress=(.+)$/m)?.[1] ?? "";
   }
-  function nodeModule(dsl: string): string {
-    const path = extractNext(dsl);
-    const row = db
-      .prepare("SELECT module FROM graph_nodes WHERE path = ?")
-      .get(path) as { module: string } | undefined;
-    if (!row) throw new Error(`no graph_nodes row for path: ${path}`);
-    return row.module;
-  }
 
   afterEach(() => {
     // Clean up fixture dirs created during this test
@@ -433,8 +425,8 @@ describe("run_bootstrap", () => {
     const out = runBootstrap(db, { path: dir });
     const next = extractNext(out);
     // b.ts is deprecated and must not be returned.
-    expect(next).not.toBe(join(dir, "b.ts"));
-    expect(next === join(dir, "a.ts") || next === join(dir, "c.ts")).toBe(true);
+    expect(next).not.toBe("b.ts");
+    expect(next === "a.ts" || next === "c.ts").toBe(true);
     expect(progress(out)).toBe("0/2");
     rmSync(dir, { recursive: true, force: true });
   });
