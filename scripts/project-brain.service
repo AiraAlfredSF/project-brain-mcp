@@ -1,0 +1,18 @@
+[Unit]
+Description=code-brain-mcp — persistent decision-memory MCP server (remote mode)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env node %h/.nvm/versions/node/v20/bin/node dist/src/index.js
+WorkingDirectory=%h/code-brain-mcp
+Restart=on-failure
+RestartSec=5
+Environment="TRANSPORT_MODE=remote"
+Environment="PROJECT_BRAIN_TOKEN=SET_ME_BEFORE_DEPLOYMENT"
+Environment="HOST=0.0.0.0"
+Environment="PORT=8420"
+Environment="SQLITE_BUSY_TIMEOUT_MS=5000"
+
+[Install]
+WantedBy=default.target

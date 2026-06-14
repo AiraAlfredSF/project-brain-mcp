@@ -1,0 +1,41 @@
+{
+  "name": "code-brain-mcp",
+  "version": "0.1.0",
+  "description": "Standalone MCP server giving CLI agents persistent decision memory, codebase graph awareness, plan validation, and self-bootstrapping.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "bin": {
+    "code-brain-mcp": "dist/src/index.js",
+    "code-brain-mcp-install": "scripts/install.sh",
+    "project-brain": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/src/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "better-sqlite3": "^11.0.0",
+    "tree-sitter": "^0.21.0",
+    "tree-sitter-c": "^0.21.0",
+    "tree-sitter-cpp": "^0.21.0",
+    "tree-sitter-go": "^0.21.0",
+    "tree-sitter-java": "^0.21.0",
+    "tree-sitter-javascript": "^0.21.0",
+    "tree-sitter-php": "^0.23.12",
+    "tree-sitter-python": "^0.21.0",
+    "tree-sitter-rust": "^0.21.0",
+    "tree-sitter-typescript": "^0.21.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.8"
+  }
+}

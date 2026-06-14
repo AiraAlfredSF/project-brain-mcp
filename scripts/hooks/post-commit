@@ -1,0 +1,13 @@
+#!/bin/bash
+# post-commit hook — Spec 09.
+# Runs after each commit to push incremental graph changes to the
+# code-brain-mcp server.
+
+set -e
+
+# Only push if PROJECT_BRAIN_URL is configured
+if [ -z "$PROJECT_BRAIN_URL" ]; then
+  exit 0
+fi
+
+exec project-brain index --since HEAD~1 --push

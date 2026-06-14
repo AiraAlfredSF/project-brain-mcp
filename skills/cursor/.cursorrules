@@ -1,0 +1,80 @@
+<!-- code-brain-mcp:start -->
+# code-brain-mcp — Checklist
+
+This project runs the `code-brain` MCP server, giving you persistent decision
+memory, a codebase dependency graph, plan validation, and a self-bootstrapping
+constraints file. Work through this checklist as you go.
+
+## Session lifecycle
+
+- [ ] Call `start_session()` at the start of every session. Resets compliance
+      tracking and (on the first call of the process) prints the `BRAIN DSL
+      v1` schema header needed to interpret every other tool's output.
+- [ ] Periodically call `get_session_health()` (roughly every 10 turns). If it
+      returns `SESSION: warnings` or `SESSION: violations`, follow the
+      `action:` line(s) before continuing.
+- [ ] Do not call `record_tool_call` yourself — the server invokes it
+      automatically after every tool call.
+
+## Decision memory (Spec 01)
+
+- [ ] Before starting any task, call `get_context(topic)` for the task's
+      topic.
+- [ ] Call `list_constraints()` to review architectural and technology
+      constraints before making changes that might touch them.
+- [ ] After making an architectural decision (library, pattern, data model,
+      API shape, etc.), call `log_decision(decision, rationale,
+      alternatives_rejected, tags)`.
+- [ ] When an approach fails, call `log_failure(description, cause,
+      approach_tried)` before trying an alternative.
+
+## Codebase graph (Spec 02)
+
+- [ ] After first setup, or whenever the code graph seems stale, call
+      `index_codebase()` to (re)build the dependency graph.
+- [ ] Before modifying a module, call `get_dependents(module)` to see what
+      depends on it.
+- [ ] Before changing a module, call `get_dependencies(module)` to understand
+      what it relies on.
+- [ ] Before a significant or risky change, call `get_blast_radius(module)`
+      for the full transitive impact.
+- [ ] After pulling new commits, call `diff_graph(since_commit)` to see
+      structural changes since the last index.
+- [ ] When starting a task described at a high level, call
+      `find_entry_points(intent)` to locate the relevant module(s).
+
+## Plan validation (Spec 03)
+
+- [ ] Before executing any multi-step plan, call `validate_plan(steps, task)`.
+      If it returns `PLAN: blocked`, address every `step[n]=`/`fix=` pair
+      before proceeding.
+
+## Bootstrap (Spec 04)
+
+- [ ] At the start of work on a project you haven't bootstrapped yet, call
+      `get_bootstrap_status()`. If `BOOTSTRAP: never_run`, see
+      `bootstrap.md` for the full flow.
+- [ ] While bootstrapping, call `run_bootstrap(path)` repeatedly until
+      `BOOTSTRAP: complete`.
+- [ ] For each module `run_bootstrap` hands you, read it and call
+      `log_module_intent(module, intent, constraints, caveats)`.
+- [ ] Don't call `write_constraints_draft()` directly — `run_bootstrap` calls
+      it for you on completion. Only call it directly if `constraints.md`
+      needs regenerating outside of bootstrap.
+
+## Two-way constraints sync (Spec 05)
+
+- [ ] After any change that adds or updates constraints in the database, call
+      `export_constraints_file()` to regenerate `constraints.md`.
+- [ ] If a human has manually edited `constraints.md`, call
+      `ingest_constraints_file()` before trusting the database's constraints
+      again.
+- [ ] Periodically call `get_sync_status()` to check whether `constraints.md`
+      and the database have drifted apart, and resolve drift before relying
+      on either.
+- [ ] After a commit changes the dependency graph, call
+      `flag_stale_constraints(commit)` to check whether any hard constraints
+      now contradict the new structure.
+- [ ] Before your next `export_constraints_file()` call, call
+      `list_flagged_constraints()` and review/resolve any flagged entries.
+<!-- code-brain-mcp:end -->

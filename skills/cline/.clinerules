@@ -1,0 +1,76 @@
+<!-- code-brain-mcp:start -->
+# code-brain-mcp — Tool Dependency Chain
+
+This project runs the `code-brain` MCP server. Its tools build on each other
+in a chain — each step below enables the one after it. Follow the chain in
+order; do not skip a step the next one depends on.
+
+1. **Call `start_session()` first.** This opens compliance tracking for the
+   session and, on the first call of the process, emits the `BRAIN DSL v1`
+   schema header — which every other tool's `D`/`F`/`C` row output depends on
+   for interpretation. Nothing else below makes sense without this.
+
+2. **Call `get_context(topic)` for your task's topic next**, which loads prior
+   decisions (`D` rows) and failures (`F` rows). This is a prerequisite that
+   `get_session_health()` checks for — skipping it produces
+   `SESSION: violations`.
+
+3. **Call `list_constraints()`**, which surfaces the project's hard and soft
+   constraints. Knowing these enables you to write a plan in step 4 that
+   doesn't violate them.
+
+4. **Before executing any multi-step plan, call `validate_plan(steps,
+   task)`.** This depends on steps 2-3 having loaded context and constraints,
+   and it gates step 5 — if it returns `PLAN: blocked`, you must resolve every
+   `step[n]=`/`fix=` pair before proceeding to execution.
+
+5. **Once a plan is approved, execute it.** While executing, two sub-chains
+   run as needed:
+
+   - **Codebase graph sub-chain (Spec 02):** if the graph seems stale, call
+     `index_codebase()` first — this enables `get_dependents(module)`,
+     `get_dependencies(module)`, `get_blast_radius(module)`, `diff_graph
+     (since_commit)`, and `find_entry_points(intent)` to return accurate
+     results. Call `get_dependents`/`get_blast_radius` BEFORE editing a
+     module, so you know what you might break; call `get_dependencies` to
+     know what the module itself relies on.
+
+   - **Bootstrap sub-chain (Spec 04), first run only:** see
+     `bootstrap.md` — this produces `constraints.md`, which step 3
+     (`list_constraints()`) and the sync sub-chain below depend on.
+
+6. **After making an architectural decision during execution, call
+   `log_decision(decision, rationale, alternatives_rejected, tags)`.** This
+   enables future sessions' `get_context()` calls (step 2) to find this
+   decision.
+
+7. **If an approach fails, call `log_failure(description, cause,
+   approach_tried)` BEFORE trying the next approach.** This enables future
+   `get_context()`/`validate_plan()` calls to warn against repeating it.
+
+8. **After constraints change (new decisions, or step 9 below), call
+   `export_constraints_file()`** to regenerate `constraints.md`. This depends
+   on the database constraints table being current.
+
+9. **After a commit changes the dependency graph, call
+   `flag_stale_constraints(commit)`**, which depends on `diff_graph` (from
+   step 5's codebase sub-chain) and enables step 10.
+
+10. **Before the next `export_constraints_file()` (step 8), call
+    `list_flagged_constraints()`** and resolve what it returns.
+
+11. **If a human manually edits `constraints.md`, call
+    `ingest_constraints_file()`** before trusting the database's constraints
+    again — this is the reverse of step 8 and must happen before step 3 on
+    your next session.
+
+12. **Periodically call `get_sync_status()`** to confirm steps 8 and 11 are
+    keeping `constraints.md` and the database in agreement.
+
+13. **Periodically call `get_session_health()`** (roughly every 10 turns) to
+    confirm steps 1-2 and 4/6 were followed; if it returns `missing:`/`action:`
+    lines, do what they say before continuing the chain.
+
+`record_tool_call` is triggered automatically by the server after every tool
+call in this chain — you never call it yourself.
+<!-- code-brain-mcp:end -->
